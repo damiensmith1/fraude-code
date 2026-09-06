@@ -20,8 +20,24 @@ interface AppProps {
   initialMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 }
 
+function reconstructEntries(
+  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+): StaticEntry[] {
+  const entries: StaticEntry[] = [{ type: "banner" }];
+  for (const message of messages) {
+    if (message.role === "user" && typeof message.content === "string") {
+      entries.push({ type: "user", text: message.content });
+    } else if (message.role === "assistant" && typeof message.content === "string") {
+      entries.push({ type: "assistant", text: message.content });
+    }
+  }
+  return entries;
+}
+
 export function App({ sessionName, client, initialMessages }: AppProps) {
-  const [entries, setEntries] = useState<StaticEntry[]>([{ type: "banner" }]);
+  const [entries, setEntries] = useState<StaticEntry[]>(() =>
+    reconstructEntries(initialMessages)
+  );
   const messagesRef = useRef([...initialMessages]);
   const [status, setStatus] = useState<Status>("idle");
   const [input, setInput] = useState("");
@@ -34,6 +50,7 @@ export function App({ sessionName, client, initialMessages }: AppProps) {
     setInput("");
     setEntries((prev) => [...prev, { type: "user", text }]);
     messagesRef.current.push({ role: "user", content: text });
+    const turnStartLength = messagesRef.current.length;
     setStatus("thinking");
 
     const onToolCall = (event: ToolCallEvent) => {
@@ -64,6 +81,7 @@ export function App({ sessionName, client, initialMessages }: AppProps) {
       setEntries((prev) => [...prev, { type: "assistant", text: finalText }]);
       saveSession(sessionName, messagesRef.current);
     } catch (error) {
+      messagesRef.current.length = turnStartLength;
       const message = error instanceof Error ? error.message : String(error);
       setEntries((prev) => [...prev, { type: "error", text: message }]);
     } finally {

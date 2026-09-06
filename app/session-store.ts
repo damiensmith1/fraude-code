@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
@@ -16,7 +16,17 @@ export function loadSession(
   if (!existsSync(path)) {
     return [];
   }
-  return JSON.parse(readFileSync(path, "utf-8"));
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const backupPath = `${path}.bak`;
+    renameSync(path, backupPath);
+    console.error(
+      `Warning: session "${name}" was corrupted (${message}). Backed up to ${backupPath}; starting fresh.`
+    );
+    return [];
+  }
 }
 
 export function saveSession(

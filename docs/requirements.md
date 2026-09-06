@@ -22,9 +22,11 @@ See [[background]] for why this project exists.
   - **Write** — write content to a file.
   - **Bash** — execute a shell command, capturing stdout and stderr.
 - Agent loop: keep sending the conversation (including prior tool results)
-  back to the model until it responds with no tool calls, then print only
-  that final message to stdout. Tool results themselves are never printed
-  directly — only fed back into the conversation.
+  back to the model until it responds with no tool calls, then show that
+  final message in the transcript. Tool calls (name, arguments, and
+  result) are also shown live in the transcript as they happen, not
+  hidden — only the raw JSON tool-result payload is what gets fed back
+  into the conversation silently, not printed a second time verbatim.
 - Global `fraude` command: usable from any working directory, always
   loading credentials from the repo's own `.env` regardless of the
   caller's current directory.
