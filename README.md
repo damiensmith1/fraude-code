@@ -1,4 +1,4 @@
-# claude-code-clone
+# fraude-code
 
 A for-fun project where I'm building my own miniature version of Claude
 Code from scratch, mostly to understand what's actually happening under
@@ -45,5 +45,5 @@ not something to point at untrusted prompts.
 ## Usage
 
 ```sh
-./your_program.sh -p "your prompt here"
+./fraude-code.sh -p "your prompt here"
 ```

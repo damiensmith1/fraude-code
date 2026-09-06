@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "claude-code-clone",
+      "name": "fraude-code",
       "dependencies": {
         "openai": "^7.10.0",
       },

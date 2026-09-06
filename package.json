@@ -1,5 +1,5 @@
 {
-  "name": "claude-code-clone",
+  "name": "fraude-code",
   "description": "A hand-rolled Claude Code style coding assistant",
   "type": "module",
   "scripts": {
