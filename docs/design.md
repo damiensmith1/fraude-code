@@ -66,11 +66,17 @@ challenge-submission messages in it.
    Options include a hand-rolled `readline` loop vs. a TUI library (e.g.
    Ink, blessed). A hand-rolled loop probably fits the project's ethos
    better (understanding internals, no frameworks), but isn't decided.
+   **Resolved** (2026-09-06): see
+   [[superpowers/specs/2026-09-06-interactive-session-design|the design spec]].
 2. **Does session state persist across separate `fraude` invocations**,
    or is each session's `messages` array purely in-memory and gone when
    the process exits (as it is today, once per one-shot call)?
+   **Resolved** (2026-09-06): see
+   [[superpowers/specs/2026-09-06-interactive-session-design|the design spec]].
 3. **Does the existing `-p "<prompt>"` one-shot mode stay** alongside a
    new interactive mode, or does interactive mode replace it entirely?
+   **Resolved** (2026-09-06): see
+   [[superpowers/specs/2026-09-06-interactive-session-design|the design spec]].
 4. **Is OpenRouter (`openai` SDK, `anthropic/claude-haiku-4.5`) a
    long-term choice**, or should this move to the native
    `@anthropic-ai/sdk` (already tried once and reverted — see

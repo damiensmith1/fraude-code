@@ -12,7 +12,9 @@ See [[background]] for why this project exists.
 
 ## Functional requirements (shipped)
 
-- CLI accepts `-p "<prompt>"` for one-shot prompt execution.
+- CLI accepts an optional `session-name` positional argument
+  (`fraude [session-name]`, defaulting to `"default"`) and opens an
+  interactive session instead of running one shot.
 - The model is given a set of tools via OpenAI-compatible function/tool
   calling on the chat completions endpoint.
 - Tool execution:
@@ -26,26 +28,9 @@ See [[background]] for why this project exists.
 - Global `fraude` command: usable from any working directory, always
   loading credentials from the repo's own `.env` regardless of the
   caller's current directory.
-
-## Functional requirements (planned)
-
-### Interactive session mode {#interactive-session-mode}
-
-Running `fraude` with no `-p` flag should open a persistent, interactive
-session instead of doing nothing / erroring:
-
-- On launch, show a landing/splash screen (project name, maybe version,
-  a hint on how to get started) — similar in spirit to Claude Code's own
-  CLI intro screen.
-- After the landing screen, drop into a prompt where the user can type
-  messages and get responses turn-by-turn, without re-running the `fraude`
-  command each time.
-- Tool calls (`Read`/`Write`/`Bash`) should work the same way inside a
-  session as they do in one-shot mode today.
-
-Open implementation questions for this feature are tracked in
-[[design#open-questions|Design → Open Questions]] — this requirement is
-confirmed as a goal, but *how* it's built is not yet decided.
+- Interactive session mode: `fraude [session-name]` opens a persistent,
+  interactive session with a landing banner. Conversation history is saved
+  to disk and resumes automatically across separate invocations.
 
 ## Non-functional requirements / constraints
 

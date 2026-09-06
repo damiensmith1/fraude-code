@@ -11,7 +11,7 @@ tool results back to the model until it's done.
 
 ## How it works
 
-`app/main.ts` runs a single CLI prompt through an agent loop:
+`app/main.ts` opens an interactive session through an agent loop:
 
 1. Send the conversation so far to the model (via [OpenRouter](https://openrouter.ai),
    currently routed to `anthropic/claude-haiku-4.5`), along with the tools
@@ -45,5 +45,11 @@ not something to point at untrusted prompts.
 ## Usage
 
 ```sh
-./fraude-code.sh -p "your prompt here"
+./fraude-code.sh [session-name]
 ```
+
+Or, using the global `fraude` command (see below): `fraude [session-name]`.
+
+`session-name` is optional and defaults to `"default"`. Each session's
+conversation history is saved to `~/.fraude/sessions/<session-name>.json`
+and resumed automatically the next time you open that same session name.

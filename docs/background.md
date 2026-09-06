@@ -38,18 +38,17 @@ whether that's a long-term choice.
 
 ## Current capabilities
 
-- One-shot CLI: `fraude -p "<prompt>"` runs a single prompt through the
-  agent loop and prints the final answer.
+- Interactive session CLI: `fraude [session-name]` opens a persistent
+  chat session with a landing banner, backed by the same agent loop.
+  Sessions persist to disk and resume across launches.
 - Three tools the model can call: `Read`, `Write`, `Bash`.
 - A global `fraude` command (symlinked into `~/.bun/bin`) that works from
   any working directory, not just the repo root.
 
 ## Where this is headed
 
-The next major step (in progress) is turning `fraude` from a one-shot CLI
-into an interactive session: running `fraude` with no arguments should
-open a persistent session with a branded landing screen (similar to Claude
-Code's own CLI splash), after which the user can converse turn-by-turn
-without re-invoking the command each time. See
-[[requirements#interactive-session-mode|Requirements → Interactive Session Mode]]
-and [[design#open-questions|Design → Open Questions]].
+Interactive session mode shipped — see
+[[superpowers/specs/2026-09-06-interactive-session-design|the design spec]]
+for how it's built. Remaining open questions (Bash sandboxing, sync vs.
+async tool execution) are tracked in
+[[design#open-questions|Design → Open Questions]].
