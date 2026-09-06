@@ -1,7 +1,5 @@
 import OpenAI from "openai";
-import { TOOLS, getFunctionToolCalls, executeToolCall } from "./tools";
-
-const MODEL = "anthropic/claude-haiku-4.5";
+import { runAgentTurn } from "./agent";
 
 async function main() {
   const [, , flag, prompt] = process.argv;
@@ -25,36 +23,8 @@ async function main() {
     { role: "user", content: prompt },
   ];
 
-  while (true) {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages,
-      tools: TOOLS,
-    });
-
-    if (!response.choices || response.choices.length === 0) {
-      throw new Error("no choices in response");
-    }
-
-    const message = response.choices[0].message;
-    messages.push(message);
-
-    const toolCalls = getFunctionToolCalls(message);
-
-    if (toolCalls.length === 0) {
-      console.log(message.content);
-      return;
-    }
-
-    for (const toolCall of toolCalls) {
-      const result = executeToolCall(toolCall);
-      messages.push({
-        role: "tool",
-        tool_call_id: toolCall.id,
-        content: result,
-      });
-    }
-  }
+  const finalText = await runAgentTurn(client, messages);
+  console.log(finalText);
 }
 
 main();
