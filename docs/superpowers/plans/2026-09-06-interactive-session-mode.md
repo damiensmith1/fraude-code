@@ -951,7 +951,14 @@ Replace with:
 `app/main.ts` opens an interactive session through an agent loop:
 ```
 
-Find the numbered one-shot description (the `1. Send... 2. If the model... 3. Repeat...` list) and the `## Usage` section's:
+Find the numbered one-shot description immediately below that line (starts `1. Send the conversation so far...`, ends `3. Repeat until the model responds with a plain answer instead of a tool call, then print that answer and exit.`) and replace its third item — the only one describing one-shot-specific behavior — so the list matches the interactive loop:
+```
+3. Once the model responds with a plain answer, print it and wait for
+   your next message — repeating until you exit the session.
+```
+(Items 1 and 2 already describe the underlying agent loop accurately regardless of one-shot vs. interactive mode — only item 3's "then... exit" framing is one-shot-specific and needs replacing.)
+
+Then find the `## Usage` section's:
 ```sh
 ./your_program.sh -p "your prompt here"
 ```
