@@ -10,30 +10,39 @@ status: active
 
 See [[requirements]] for what this needs to do, [[background]] for why.
 
-## Architecture (current, one-shot mode)
+## Architecture
 
-Everything lives in a single entrypoint, `app/main.ts`:
+`app/main.ts` is a thin entry point: it parses an optional session-name
+positional argument (defaulting to `"default"`), fails fast if
+`OPENROUTER_API_KEY` is missing, loads that session's history, and
+renders the Ink app. The actual logic lives in four focused modules:
 
-- `TOOLS` — a module-level array of OpenAI `ChatCompletionTool` schemas
-  (`Read`, `Write`, `Bash`), passed to every chat completions request.
-- `main()` — seeds a `messages` array with the user's prompt, then runs
-  the agent loop:
-  1. Call the model with the full `messages` history plus `TOOLS`.
-  2. Push the assistant's response message onto `messages`.
-  3. If it has no tool calls, print `message.content` and exit.
-  4. Otherwise, execute each tool call and push a
-     `{ role: "tool", tool_call_id, content }` message per call, then
-     loop back to step 1.
-- `getFunctionToolCalls(message)` — pulls `message.tool_calls` and
-  validates each one is actually a `"function"`-type call with string
-  `name`/`arguments`, throwing on anything malformed rather than
-  silently misreading it.
-- `executeToolCall(toolCall)` — parses the JSON `arguments` string and
-  dispatches on `name` via a `switch`, so adding a new tool is one new
-  `case`.
-- `runCommand(command)` — wraps `execSync` for the `Bash` tool; on
-  failure, pulls `stdout`/`stderr` off the caught error and returns their
-  concatenation so the model sees what actually went wrong.
+- `app/tools.ts` — `TOOLS`, a module-level array of OpenAI
+  `ChatCompletionTool` schemas (`Read`, `Write`, `Bash`);
+  `getFunctionToolCalls(message)`, which validates each tool call is a
+  well-formed `"function"`-type call before returning it;
+  `executeToolCall(toolCall)`, which parses the JSON `arguments` string
+  and dispatches on `name` via a `switch`; and `runCommand(command)`,
+  which wraps `execSync` for the `Bash` tool, returning combined
+  `stdout`/`stderr` on failure so the model sees what went wrong.
+- `app/agent.ts` — `runAgentTurn(client, messages, onToolCall?)`: the
+  agent loop, extracted so it can run once per user turn instead of
+  once per process. Calls the model, pushes its response onto
+  `messages`, and if there are no tool calls, returns the final text.
+  Otherwise it executes each tool call (firing `onToolCall` with
+  `{phase: "start", ...}` before and `{phase: "end", ...}` after, so a
+  UI can show live progress), pushes a `{role: "tool", ...}` message per
+  call, and loops back to another API call.
+- `app/session-store.ts` — `loadSession(name)` / `saveSession(name,
+  messages)`, persisting a session's `messages` array as JSON at
+  `~/.fraude/sessions/<name>.json`.
+- `app/ui/App.tsx` — the Ink component: a `<Static>` region for the
+  landing banner and the finalized transcript (user messages, tool-call
+  lines, assistant replies, errors — each appended once and never
+  re-rendered), plus a dynamic footer that's either a text input or a
+  thinking/tool-status line depending on whether a turn is in flight.
+  On submit, it calls `runAgentTurn` and, on success, `saveSession` —
+  a failed turn shows an inline error instead and is never persisted.
 
 ## CLI distribution
 
@@ -62,7 +71,6 @@ challenge-submission messages in it.
 ## Open Questions {#open-questions}
 
 1. **How should interactive session mode be implemented?**
-   (See [[requirements#interactive-session-mode|Requirements → Interactive Session Mode]].)
    Options include a hand-rolled `readline` loop vs. a TUI library (e.g.
    Ink, blessed). A hand-rolled loop probably fits the project's ethos
    better (understanding internals, no frameworks), but isn't decided.

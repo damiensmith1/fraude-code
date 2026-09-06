@@ -18,8 +18,8 @@ tool results back to the model until it's done.
    it's allowed to call.
 2. If the model responds with tool calls, run each one locally and append
    the results back into the conversation as `tool` messages.
-3. Repeat until the model responds with a plain answer instead of a tool
-   call, then print that answer and exit.
+3. Once the model responds with a plain answer, print it and wait for
+   your next message — repeating until you exit the session.
 
 ### Tools implemented so far
 
