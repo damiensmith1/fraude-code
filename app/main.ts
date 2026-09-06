@@ -1,30 +1,22 @@
 import OpenAI from "openai";
-import { runAgentTurn } from "./agent";
+import { startApp } from "./ui/App";
+import { loadSession } from "./session-store";
 
-async function main() {
-  const [, , flag, prompt] = process.argv;
+function main() {
+  const sessionName = process.argv[2] ?? "default";
   const apiKey = process.env.OPENROUTER_API_KEY;
   const baseURL =
     process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not set");
-  }
-  if (flag !== "-p" || !prompt) {
-    throw new Error("error: -p flag is required");
+    console.error("OPENROUTER_API_KEY is not set");
+    process.exit(1);
   }
 
-  const client = new OpenAI({
-    apiKey: apiKey,
-    baseURL: baseURL,
-  });
+  const client = new OpenAI({ apiKey, baseURL });
+  const initialMessages = loadSession(sessionName);
 
-  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    { role: "user", content: prompt },
-  ];
-
-  const finalText = await runAgentTurn(client, messages);
-  console.log(finalText);
+  startApp(sessionName, client, initialMessages);
 }
 
 main();
